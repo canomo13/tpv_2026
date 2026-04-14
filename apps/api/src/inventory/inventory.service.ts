@@ -51,4 +51,57 @@ export class InventoryService {
       include: { ingredient: true, product: true },
     });
   }
+
+  // --- CATEGORÍAS ---
+  async getCategories() {
+    return this.prisma.category.findMany({
+      include: { _count: { select: { products: true } } },
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  async createCategory(name: string) {
+    return this.prisma.category.create({
+      data: { name }
+    });
+  }
+
+  async deleteCategory(id: string) {
+    return this.prisma.category.delete({
+      where: { id }
+    });
+  }
+
+  // --- PRODUCTOS ---
+  async getProducts(categoryId?: string) {
+    return this.prisma.product.findMany({
+      where: categoryId ? { categoryId } : {},
+      include: { category: true },
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  async createProduct(data: { name: string; price: number; categoryId: string; description?: string }) {
+    return this.prisma.product.create({
+      data: {
+        name: data.name,
+        price: data.price,
+        description: data.description,
+        category: { connect: { id: data.categoryId } }
+      }
+    });
+  }
+
+  async updateProduct(id: string, data: any) {
+    return this.prisma.product.update({
+      where: { id },
+      data
+    });
+  }
+
+  async deleteProduct(id: string) {
+    return this.prisma.product.delete({
+      where: { id }
+    });
+  }
 }
