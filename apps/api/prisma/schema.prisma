@@ -1,0 +1,145 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --- USUARIOS Y FICHAR ---
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(WAITER)
+  shifts    Shift[]
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  WAITER
+  WAREHOUSE
+}
+
+model Shift {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+}
+
+// --- INVENTARIO MULTI-ALMACÉN ---
+model Warehouse {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  stocks Stock[]
+}
+
+model Stock {
+  id           String     @id @default(uuid())
+  warehouse    Warehouse  @relation(fields: [warehouseId], references: [id])
+  warehouseId  String
+  ingredient   Ingredient? @relation(fields: [ingredientId], references: [id])
+  ingredientId String?
+  product      Product?    @relation(fields: [productId], references: [id])
+  productId    String?
+  quantity     Float      @default(0)
+
+  @@unique([warehouseId, ingredientId])
+  @@unique([warehouseId, productId])
+}
+
+model Ingredient {
+  id        String   @id @default(uuid())
+  name      String
+  unit      String   // g, ml, ud, etc.
+  cost      Decimal  @db.Decimal(10, 2)
+  minStock  Float    @default(0)
+  stocks    Stock[]
+  recipes   Recipe[]
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  recipe      Recipe[]    // Composición si tiene escandallo
+  stocks      Stock[]     // Si es producto directo (ej. bebida botella)
+  items       OrderItem[]
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Recipe {
+  id           String     @id @default(uuid())
+  product      Product    @relation(fields: [productId], references: [id])
+  productId    String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId String
+  quantity     Float      // Cantidad de ingrediente por 1 unidad de producto
+}
+
+// --- DISEÑO DE PLANTA ---
+model Zone {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  tables Table[]
+}
+
+model Table {
+  id       String  @id @default(uuid())
+  number   Int
+  x        Float   // Coordenada X canvas
+  y        Float   // Coordenada Y canvas
+  width    Float   @default(60)
+  height   Float   @default(60)
+  shape    String  @default("rect") // "rect", "circle"
+  status   String  @default("free")
+  zone     Zone    @relation(fields: [zoneId], references: [id])
+  zoneId   String
+  tickets  Ticket[]
+}
+
+// --- TICKETS Y FISCALIDAD (VeriFactu) ---
+model Ticket {
+  id            String      @id @default(uuid())
+  ticketNumber  Int         @unique @default(autoincrement())
+  table         Table?      @relation(fields: [tableId], references: [id])
+  tableId       String?
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  total         Decimal     @db.Decimal(10, 2)
+  items         OrderItem[]
+  status        String      @default("PAID")
+  
+  // VeriFactu Fields
+  prevHash      String?     // Hash del ticket anterior
+  currentHash   String      // Hash de este ticket
+  signature     String?     // Firma electrónica
+  chainIndex    Int         @default(0) // Índice en la cadena
+  
+  createdAt     DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  ticket    Ticket  @relation(fields: [ticketId], references: [id])
+  ticketId  String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+}

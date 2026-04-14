@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# IDEs and Editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Nx
+.nx/workspace-data
+.nx/cache
+
+# Prisma
+/apps/api/prisma/schema.prisma.bak
+
+# OS files
+.DS_Store
+Thumbs.db
