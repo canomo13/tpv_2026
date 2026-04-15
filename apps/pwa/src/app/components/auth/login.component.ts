@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ShiftService } from '../../services/shift.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -108,7 +109,11 @@ export class LoginComponent {
 
   digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private shiftService: ShiftService,
+    private router: Router
+  ) {}
 
   addDigit(digit: string) {
     if (this.pin().length < 4) {
@@ -142,13 +147,9 @@ export class LoginComponent {
   }
 
   private navigateByRole(role: string) {
-    if (role === 'ADMIN') {
-      this.router.navigate(['/floor-plan']);
-    } else if (role === 'KITCHEN') {
-      this.router.navigate(['/kitchen']);
-    } else {
-      // Por defecto para camareros: Comandero
-      this.router.navigate(['/handheld']);
-    }
+    // Tras login, cargamos el turno y vamos a la pantalla de estado de jornada
+    this.shiftService.loadCurrentShift().subscribe(() => {
+      this.router.navigate(['/shift']);
+    });
   }
 }

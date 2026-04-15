@@ -6,6 +6,7 @@ import { OrdersModule } from './orders/orders.module';
 import { VeriFactuModule } from './verifactu/verifactu.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SettingsModule } from './settings/settings.module';
+import { ShiftsModule } from './shifts/shifts.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SettingsModule } from './settings/settings.module';
     OrdersModule,
     VeriFactuModule,
     SettingsModule,
+    ShiftsModule,
   ],
 })
 export class AppModule {}

@@ -14,6 +14,11 @@ export const appConfig: ApplicationConfig = {
         loadComponent: () => import('./components/auth/login.component').then(m => m.LoginComponent)
       },
       {
+        path: 'shift',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/auth/shift-status.component').then(m => m.ShiftStatusComponent)
+      },
+      {
         path: 'floor-plan',
         canActivate: [authGuard],
         data: { role: 'ADMIN' },
