@@ -135,6 +135,20 @@ model Ticket {
   chainIndex    Int         @default(0) // Índice en la cadena
   
   createdAt     DateTime    @default(now())
+  paidAt        DateTime?   // Momento del pago/cierre
+}
+
+model BusinessSettings {
+  id              String   @id @default(uuid())
+  name            String   @default("Pastel Premium")
+  companyName     String?  // Razón Social
+  cif             String?
+  address         String?
+  phone           String?
+  logoSvg         String?  @db.Text // Store SVG string
+  socialMediaUrl  String?  // URL para el QR
+  footerMessage   String?  @default("Gracias por su visita")
+  updatedAt       DateTime @updatedAt
 }
 
 model OrderItem {

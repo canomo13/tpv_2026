@@ -47,6 +47,12 @@ export const appConfig: ApplicationConfig = {
         data: { role: 'KITCHEN' },
         loadComponent: () => import('./components/kitchen/kitchen.component').then(m => m.KitchenComponent)
       },
+      {
+        path: 'settings',
+        canActivate: [authGuard],
+        data: { role: 'ADMIN' },
+        loadComponent: () => import('./components/settings/settings.component').then(m => m.SettingsComponent)
+      },
       { path: '', redirectTo: 'login', pathMatch: 'full' }
     ])
 

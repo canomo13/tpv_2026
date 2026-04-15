@@ -171,7 +171,10 @@ export class OrdersService {
   async closeTicket(ticketId: string) {
     const ticket = await this.prisma.ticket.update({
       where: { id: ticketId },
-      data: { status: 'PAID' },
+      data: { 
+        status: 'PAID',
+        paidAt: new Date()
+      },
       include: { table: true }
     });
 
