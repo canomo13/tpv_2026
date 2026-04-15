@@ -39,4 +39,54 @@ export class InventoryController {
   deleteProduct(@Param('id') id: string) {
     return this.inventoryService.deleteProduct(id);
   }
+
+  // --- WAREHOUSES ---
+  @Get('warehouses')
+  getWarehouses() {
+    return this.inventoryService.getWarehouses();
+  }
+
+  @Post('warehouses')
+  createWarehouse(@Body('name') name: string) {
+    return this.inventoryService.createWarehouse(name);
+  }
+
+  // --- INGREDIENTS ---
+  @Get('ingredients')
+  getIngredients() {
+    return this.inventoryService.getIngredients();
+  }
+
+  @Post('ingredients')
+  createIngredient(@Body() data: any) {
+    return this.inventoryService.createIngredient(data);
+  }
+
+  // --- STOCK ---
+  @Get('stock/:warehouseId')
+  getStocks(@Param('warehouseId') warehouseId: string) {
+    return this.inventoryService.getStocksByWarehouse(warehouseId);
+  }
+
+  @Post('stock/adjust')
+  adjustStock(@Body() data: { warehouseId: string; ingredientId: string; quantity: number }) {
+    return this.inventoryService.updateStockManual(data.warehouseId, data.ingredientId, data.quantity);
+  }
+
+  @Post('stock/transfer')
+  transferStock(@Body() data: { sourceWarehouseId: string; targetWarehouseId: string; ingredientId: string; quantity: number }) {
+    return this.inventoryService.transferStock(data.sourceWarehouseId, data.targetWarehouseId, data.ingredientId, data.quantity);
+  }
+
+  // --- RECIPES ---
+  @Get('products/:productId/recipe')
+  getRecipe(@Param('productId') productId: string) {
+    return this.inventoryService.getProductRecipe(productId);
+  }
+
+  @Put('products/:productId/recipe')
+  updateRecipe(@Param('productId') productId: string, @Body('ingredients') ingredients: any[]) {
+    return this.inventoryService.updateProductRecipe(productId, ingredients);
+  }
 }
+

@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { KitchenGateway } from './kitchen.gateway';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private prisma: PrismaService,
-    private inventoryService: InventoryService
+    private inventoryService: InventoryService,
+    private kitchenGateway: KitchenGateway
   ) {}
 
   /**
@@ -20,7 +22,8 @@ export class OrdersService {
       },
       include: {
         items: {
-          include: { product: true }
+          include: { product: true },
+          orderBy: { status: 'asc' }
         }
       }
     });
@@ -52,34 +55,43 @@ export class OrdersService {
   }
 
   /**
-   * Añadir un producto al ticket. Si ya existe, incrementa la cantidad.
+   * Añadir un producto al ticket.
    */
-  async addItemToTicket(ticketId: string, productId: string, quantity: number) {
+  async addItemToTicket(ticketId: string, productId: string, quantity: number, notes?: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId }
     });
 
     if (!product) throw new NotFoundException('Producto no encontrado');
 
+    // Buscamos si ya existe el mismo producto CON la misma nota (si hay notas distintas, son items distintos)
     const existingItem = await this.prisma.orderItem.findFirst({
-      where: { ticketId, productId }
+      where: { ticketId, productId, notes: notes || null, status: 'PENDING' }
     });
 
+    let orderItem;
     if (existingItem) {
-      await this.prisma.orderItem.update({
+      orderItem = await this.prisma.orderItem.update({
         where: { id: existingItem.id },
-        data: { quantity: { increment: quantity } }
+        data: { quantity: { increment: quantity } },
+        include: { product: true, ticket: { include: { table: true } } }
       });
     } else {
-      await this.prisma.orderItem.create({
+      orderItem = await this.prisma.orderItem.create({
         data: {
           ticketId,
           productId,
           quantity,
-          price: product.price
-        }
+          price: product.price,
+          notes: notes || null,
+          status: 'PENDING'
+        },
+        include: { product: true, ticket: { include: { table: true } } }
       });
     }
+
+    // Notificar a cocina
+    this.kitchenGateway.notifyNewOrder(orderItem);
 
     // Recalcular total del ticket
     const allItems = await this.prisma.orderItem.findMany({
@@ -102,8 +114,59 @@ export class OrdersService {
   }
 
   /**
-   * Cerrar ticket (Cobrar). 
-   * Aquí se integraría VeriFactu en el futuro.
+   * Obtener todos los pedidos para cocina (Tickets abiertos con items no servidos)
+   */
+  async getKitchenOrders() {
+    return this.prisma.ticket.findMany({
+      where: {
+        status: 'OPEN',
+        items: {
+          some: {
+            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+          }
+        }
+      },
+      include: {
+        table: true,
+        items: {
+          where: {
+            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+          },
+          include: { product: true }
+        }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+  }
+
+  /**
+   * Actualizar estado de un item de pedido
+   */
+  async updateItemStatus(itemId: string, status: string) {
+    const item = await this.prisma.orderItem.update({
+      where: { id: itemId },
+      data: { status },
+      include: { product: true, ticket: { include: { table: true } } }
+    });
+
+    // Notificar cambio
+    this.kitchenGateway.notifyStatusChange(item);
+
+    // Si el estado es READY, descontamos stock automáticamente
+    if (status === 'READY') {
+      try {
+        await this.inventoryService.deductStockFromRecipe(item.productId, item.quantity);
+      } catch (e) {
+        console.error('Error al descontar stock:', e);
+      }
+    }
+    
+    return item;
+  }
+
+
+  /**
+   * Cerrar ticket (Cobrar).
    */
   async closeTicket(ticketId: string) {
     const ticket = await this.prisma.ticket.update({
@@ -122,3 +185,4 @@ export class OrdersService {
     return ticket;
   }
 }
+

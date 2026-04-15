@@ -9,9 +9,9 @@ import { OrdersService, Ticket } from '../../services/orders.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="h-full flex flex-col lg:flex-row gap-8 animate-slide-up">
+    <div class="h-full flex gap-8 animate-slide-up overflow-hidden">
       <!-- Panel de Comanda (Izquierda) -->
-      <aside class="w-full lg:w-[400px] flex flex-col gap-6 shrink-0 h-[600px] lg:h-full">
+      <aside class="w-[420px] flex flex-col gap-6 shrink-0 h-full">
         <div class="glass-panel flex-1 rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl border-white bg-white/60">
           <!-- Cabecera Comanda -->
           <div class="p-8 border-b border-slate-100 flex justify-between items-start">
@@ -28,17 +28,37 @@ import { OrdersService, Ticket } from '../../services/orders.service';
           </div>
 
           <!-- Items de Comanda -->
-          <div class="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
+          <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
             <div *ngFor="let item of currentTicket?.items" 
-                 class="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-white hover:bg-white transition-all shadow-sm group">
-              <div class="flex flex-col">
-                <span class="text-sm font-bold text-slate-800">{{ item.product.name }}</span>
-                <span class="text-[10px] font-bold text-slate-400">x{{ item.quantity }} · {{ item.price | currency:'EUR' }}</span>
-              </div>
-              <div class="flex items-center space-x-4">
+                 class="flex flex-col p-4 bg-white/40 rounded-2xl border border-white hover:bg-white transition-all shadow-sm group">
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-slate-800">{{ item.product.name }}</span>
+                    <!-- Badge de Estado -->
+                    <span [ngClass]="{
+                      'bg-orange-100 text-orange-600': item.status === 'PENDING',
+                      'bg-blue-100 text-blue-600': item.status === 'PREPARING',
+                      'bg-green-100 text-green-600': item.status === 'READY',
+                      'bg-slate-100 text-slate-500': item.status === 'SERVED'
+                    }" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-tighter">
+                      {{ item.status }}
+                    </span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400">x{{ item.quantity }} · {{ item.price | currency:'EUR' }}</span>
+                </div>
                 <span class="font-display font-bold text-slate-800 tracking-tight">{{ (item.price * item.quantity) | currency:'EUR' }}</span>
-                <button (click)="removeItem(item)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-rose-500 hover:text-white">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </div>
+              
+              <!-- Notas si existen -->
+              <div *ngIf="item.notes" class="flex items-center gap-1.5 text-rose-500 text-[11px] font-medium bg-rose-50/50 p-2 rounded-lg mb-2">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span>"{{ item.notes }}"</span>
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <button (click)="removeItem(item)" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 px-2 py-1 transition-colors">
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -51,6 +71,18 @@ import { OrdersService, Ticket } from '../../services/orders.service';
 
           <!-- Total Footer -->
           <div class="p-8 bg-white/80 border-t border-slate-100 flex flex-col gap-6">
+            <!-- Selector de Notas Rápido -->
+            <div class="flex flex-col gap-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Añadir nota al siguiente producto</label>
+              <div class="flex gap-2">
+                <input #noteInput type="text" placeholder="Ej: Sin cebolla, poco hecho..." 
+                       class="flex-1 bg-slate-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-100 outline-none">
+                <button (click)="noteInput.value = ''" class="px-3 py-2 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-200 transition-colors">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+            </div>
+
             <div class="flex justify-between items-end">
               <div class="flex flex-col">
                 <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total a pagar</span>
@@ -77,9 +109,9 @@ import { OrdersService, Ticket } from '../../services/orders.service';
       </aside>
 
       <!-- Selector de Productos (Centro) -->
-      <main class="flex-1 flex flex-col gap-8">
-        <!-- Categorías Selector (Scroll Horizontal) -->
-        <div class="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar">
+      <main class="flex-1 flex flex-col gap-8 h-full overflow-hidden">
+        <!-- Categorías Selector -->
+        <div class="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar shrink-0">
           <button 
             *ngFor="let cat of categories"
             (click)="selectCategory(cat.id)"
@@ -92,57 +124,53 @@ import { OrdersService, Ticket } from '../../services/orders.service';
         </div>
 
         <!-- Productos Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          <button 
-            *ngFor="let product of filteredProducts"
-            (click)="addProduct(product)"
-            class="glass-panel p-6 rounded-[2.5rem] flex flex-col gap-4 text-left group hover:scale-[1.02] hover:bg-white hover:shadow-2xl transition-all duration-300 border-white/50 relative overflow-hidden">
-            <div class="absolute -top-1 -right-1 w-12 h-12 bg-indigo-500/5 rounded-bl-[1.5rem] flex items-center justify-center text-indigo-600 font-black text-xs">
-              +
-            </div>
-            <div class="w-full aspect-square bg-slate-50/50 rounded-2xl flex items-center justify-center text-slate-200 group-hover:text-indigo-200 transition-colors">
-               <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path></svg>
-            </div>
-            <div class="flex flex-col gap-1">
-              <span class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-400">{{ product.category?.name }}</span>
-              <h4 class="font-bold text-slate-800 text-lg group-hover:text-indigo-600 italic">{{ product.name }}</h4>
-            </div>
-            <div class="mt-auto pt-2 flex justify-between items-center">
-              <span class="text-xl font-display font-black text-slate-900 tracking-tighter">{{ product.price | currency:'EUR' }}</span>
-              <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 scale-0 group-hover:scale-100 transition-transform duration-300">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
+          <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            <button 
+              *ngFor="let product of filteredProducts"
+              (click)="addProduct(product, noteInput.value); noteInput.value = ''"
+              class="glass-panel p-6 rounded-[2.5rem] flex flex-col gap-4 text-left group hover:scale-[1.02] hover:bg-white hover:shadow-2xl transition-all duration-300 border-white/50 relative overflow-hidden h-64">
+              <div class="absolute -top-1 -right-1 w-12 h-12 bg-indigo-500/5 rounded-bl-[1.5rem] flex items-center justify-center text-indigo-600 font-black text-xs">
+                +
               </div>
-            </div>
-          </button>
-
-          <!-- Empty Category -->
-          <div *ngIf="filteredProducts.length === 0" class="col-span-full py-40 flex flex-col items-center justify-center text-slate-200 bg-white/30 rounded-[3rem] border-2 border-dashed border-white">
-            <svg width="80" height="80" class="mb-4 opacity-50" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="font-display font-bold text-xl">Sin productos</p>
-            <p class="text-sm">Selecciona otra categoría de la barra superior</p>
+              <div class="w-full aspect-square bg-slate-50/50 rounded-2xl flex items-center justify-center text-slate-200 group-hover:text-indigo-200 transition-colors shrink-0">
+                 <svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path></svg>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-400">{{ product.category?.name }}</span>
+                <h4 class="font-bold text-slate-800 text-lg group-hover:text-indigo-600 italic line-clamp-1">{{ product.name }}</h4>
+              </div>
+              <div class="mt-auto pt-2 flex justify-between items-center">
+                <span class="text-xl font-display font-black text-slate-900 tracking-tighter">{{ product.price | currency:'EUR' }}</span>
+                <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 scale-0 group-hover:scale-100 transition-transform duration-300">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14 m5 12h14"></path></svg>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </main>
     </div>
   `,
   styles: [`
-    :host { display: block; height: calc(100vh - 160px); }
+    :host { display: block; height: calc(100vh - 120px); }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
   `]
+
 })
 export class POSComponent implements OnInit {
   tableId: string = '';
   tableNumber: string = '0';
-  userId: string = 'SYSTEM_USER'; // Placeholder para auth
+  userId: string = 'SYSTEM_USER';
 
   categories: Category[] = [];
   products: Product[] = [];
   filteredProducts: Product[] = [];
   selectedCategoryId: string | null = null;
-  currentTicket: Ticket | null = null;
+  currentTicket: any | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -153,8 +181,7 @@ export class POSComponent implements OnInit {
 
   ngOnInit() {
     this.tableId = this.route.snapshot.paramMap.get('tableId') || '';
-    this.tableNumber = this.tableId.substring(0, 3).toUpperCase(); // Hack visual para Demo
-
+    
     this.loadData();
     this.refreshTicket();
   }
@@ -175,6 +202,7 @@ export class POSComponent implements OnInit {
   refreshTicket() {
     this.ordersService.getActiveTicket(this.tableId, this.userId).subscribe(ticket => {
       this.currentTicket = ticket;
+      this.tableNumber = ticket.table?.number?.toString() || this.tableId.substring(0, 3).toUpperCase();
     });
   }
 
@@ -191,17 +219,16 @@ export class POSComponent implements OnInit {
     }
   }
 
-  addProduct(product: Product) {
+  addProduct(product: Product, notes?: string) {
     if (!this.currentTicket) return;
-    this.ordersService.addItem(this.currentTicket.id, product.id, 1).subscribe(ticket => {
+    this.ordersService.addItem(this.currentTicket.id, product.id, 1, notes).subscribe(ticket => {
       this.currentTicket = ticket;
     });
   }
 
   removeItem(item: any) {
-    // Para demo, decrementamos. En real necesitaríamos DELETE de OrderItem
     if (!this.currentTicket) return;
-    this.ordersService.addItem(this.currentTicket.id, item.productId, -1).subscribe(ticket => {
+    this.ordersService.addItem(this.currentTicket.id, item.productId, -1, item.notes).subscribe(ticket => {
       this.currentTicket = ticket;
     });
   }
@@ -216,3 +243,4 @@ export class POSComponent implements OnInit {
     }
   }
 }
+

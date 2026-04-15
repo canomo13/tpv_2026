@@ -13,6 +13,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  pin       String?  @unique @db.VarChar(4) // Código de 4 dígitos para acceso rápido
   role      Role     @default(WAITER)
   shifts    Shift[]
   tickets   Ticket[]
@@ -24,7 +25,9 @@ enum Role {
   ADMIN
   WAITER
   WAREHOUSE
+  KITCHEN
 }
+
 
 model Shift {
   id        String    @id @default(uuid())
@@ -123,7 +126,7 @@ model Ticket {
   userId        String
   total         Decimal     @db.Decimal(10, 2)
   items         OrderItem[]
-  status        String      @default("PAID")
+  status        String      @default("OPEN")
   
   // VeriFactu Fields
   prevHash      String?     // Hash del ticket anterior
@@ -142,4 +145,7 @@ model OrderItem {
   productId String
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
+  status    String  @default("PENDING") // PENDING, PREPARING, READY, SERVED
+  notes     String?
 }
+

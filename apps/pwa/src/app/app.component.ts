@@ -27,7 +27,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
              routerLinkActive="bg-white text-indigo-600 shadow-sm" 
              [routerLinkActiveOptions]="{exact: true}"
              class="px-8 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:text-indigo-600">
-            Ventas
+            Sala
+          </a>
+          <a routerLink="/kitchen" 
+             routerLinkActive="bg-white text-indigo-600 shadow-sm" 
+             class="px-8 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:text-indigo-600">
+            Cocina
           </a>
           <a routerLink="/inventory" 
              routerLinkActive="bg-white text-indigo-600 shadow-sm" 
@@ -37,6 +42,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
           <a routerLink="/floor-plan/edit" 
              class="px-8 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:text-indigo-400">Diseñador</a>
         </nav>
+
 
         <div class="flex items-center space-x-6">
           <div class="hidden sm:flex flex-col items-end">

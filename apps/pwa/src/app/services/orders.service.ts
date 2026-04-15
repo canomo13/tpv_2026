@@ -9,6 +9,8 @@ export interface TicketItem {
   product: Product;
   quantity: number;
   price: number;
+  status: string; // PENDING, PREPARING, READY, SERVED
+  notes?: string;
 }
 
 export interface Ticket {
@@ -18,25 +20,35 @@ export interface Ticket {
   total: number;
   status: string;
   items: TicketItem[];
+  table?: any;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrdersService {
-  private apiUrl = 'http://localhost:3000/api/orders';
+  private apiUrl = 'http://localhost:3000/orders'; // Ajustar si hay prefijo /api
 
   constructor(private http: HttpClient) {}
 
   getActiveTicket(tableId: string, userId: string): Observable<Ticket> {
-    return this.http.get<Ticket>(`${this.apiUrl}/active-ticket/${tableId}?userId=${userId}`);
+    return this.http.post<Ticket>(`${this.apiUrl}/active-ticket`, { tableId, userId });
   }
 
-  addItem(ticketId: string, productId: string, quantity: number): Observable<Ticket> {
-    return this.http.post<Ticket>(`${this.apiUrl}/items`, { ticketId, productId, quantity });
+  addItem(ticketId: string, productId: string, quantity: number, notes?: string): Observable<Ticket> {
+    return this.http.post<Ticket>(`${this.apiUrl}/add-item`, { ticketId, productId, quantity, notes });
+  }
+
+  getKitchenOrders(): Observable<Ticket[]> {
+    return this.http.get<Ticket[]>(`${this.apiUrl}/kitchen`);
+  }
+
+  updateItemStatus(itemId: string, status: string): Observable<TicketItem> {
+    return this.http.patch<TicketItem>(`${this.apiUrl}/item/${itemId}/status`, { status });
   }
 
   payTicket(ticketId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/pay/${ticketId}`, {});
+    return this.http.post(`${this.apiUrl}/${ticketId}/close`, {});
   }
 }
+

@@ -1,22 +1,32 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query, Patch } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Get('active-ticket/:tableId')
-  getActiveTicket(@Param('tableId') tableId: string, @Query('userId') userId: string) {
-    return this.ordersService.getOrCreateActiveTicket(tableId, userId);
+  @Post('active-ticket')
+  getOrCreateTicket(@Body() body: { tableId: string; userId: string }) {
+    return this.ordersService.getOrCreateActiveTicket(body.tableId, body.userId);
   }
 
-  @Post('items')
-  addItem(@Body() data: { ticketId: string; productId: string; quantity: number }) {
-    return this.ordersService.addItemToTicket(data.ticketId, data.productId, data.quantity);
+  @Post('add-item')
+  addItem(@Body() body: { ticketId: string; productId: string; quantity: number; notes?: string }) {
+    return this.ordersService.addItemToTicket(body.ticketId, body.productId, body.quantity, body.notes);
   }
 
-  @Post('pay/:ticketId')
-  payTicket(@Param('ticketId') ticketId: string) {
+  @Get('kitchen')
+  getKitchenOrders() {
+    return this.ordersService.getKitchenOrders();
+  }
+
+  @Patch('item/:itemId/status')
+  updateItemStatus(@Param('itemId') itemId: string, @Body() body: { status: string }) {
+    return this.ordersService.updateItemStatus(itemId, body.status);
+  }
+
+  @Post(':ticketId/close')
+  closeTicket(@Param('ticketId') ticketId: string) {
     return this.ordersService.closeTicket(ticketId);
   }
 }
