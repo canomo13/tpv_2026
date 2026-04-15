@@ -2,11 +2,12 @@
 
 Pastel Premium ha sido diseñado para ser su mejor herramienta en sala: rápido, intuitivo y táctil.
 
-## 1. Inicio de Sesión Express
+## 1. Inicio de Sesión y Jornada
 Ya no es necesario escribir correos ni contraseñas largas.
-1. Seleccione "Acceso Rápido (PIN)".
-2. Introduzca sus **4 dígitos** de empleado.
-3. El sistema le llevará automáticamente al listado de zonas.
+1. Seleccione "Acceso Rápido (PIN)" e introduzca sus **4 dígitos**.
+2. **Fichaje Obligatorio**: Verá la pantalla de estado de jornada. Si acaba de empezar, pulse **"Iniciar Jornada"**. 
+3. **Cronómetro**: Durante todo su turno podrá ver cuánto tiempo lleva trabajando en la pantalla de estado.
+4. Pulse **"Entrar al POS"** para empezar a operar.
 
 ## 2. Flujo de Comanda (3 Toques)
 El sistema está optimizado para que tome un pedido en segundos:
@@ -25,11 +26,11 @@ Si vuelve a entrar en una mesa ocupada, verá:
 - **Ticket en curso**: Productos ya pedidos y su importe.
 - **Estado de platos**: Verá si un plato está **Pendiente**, **En Preparación** o **Listo** (punto verde). ¡Sabrá si la comida está lista antes de ir a cocina!
 
-## 5. Cobro en Mesa
+## 5. Cobro y Ticket Profesional
 ¿El cliente quiere la cuenta? No necesita ir al terminal fijo.
-1. Entre en la mesa correspondiente.
-2. Pulse el botón **COBRAR** (superior derecha).
-3. El sistema cerrará el ticket y liberará la mesa automáticamente.
+1. Entre en la mesa correspondiente y pulse **COBRAR**.
+2. **Ticket Completo**: Se generará un ticket con su nombre, la hora que atendió la mesa y la hora del cobro.
+3. **QR de Fidelización**: Al final del ticket aparecerá un código QR para que el cliente pueda acceder a las redes sociales del local.
 
 ---
 

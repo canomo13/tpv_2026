@@ -21,6 +21,7 @@ Pastel Premium utiliza un sistema de **Autenticación Híbrida**.
 
 - **Administradores**: Acceden con Email y Contraseña desde cualquier PC/Tablet.
 - **Staff (Camareros/Cocina)**: Utilizan un **PIN de 4 dígitos** para un acceso rápido y táctil.
+- **Control de Presencia**: El sistema obliga a fichar entrada antes de operar el POS. Los turnos que excedan las 12 horas se cerrarán automáticamente por seguridad.
 - **Roles**:
   - `ADMIN`: Acceso total.
   - `WAITER`: Acceso al Comandero y Plano de Sala.
@@ -31,6 +32,12 @@ Desde el panel principal puede ver el estado de todas las mesas en tiempo real:
 - ⚪ **Gris**: Libre.
 - 🔴 **Rojo**: Ocupada (con ticket abierto).
 - 🟡 **Amarillo**: Sucia/Pendiente de limpieza.
+
+## 5. Configuración del Negocio (Ajustes)
+En la sección "Mi Negocio", puede personalizar la identidad legal y visual de su establecimiento:
+- **Logo SVG**: Suba su logotipo vectorial para una impresión térmica nítida en los tickets.
+- **Datos Fiscales**: Nombre, Razón Social, CIF y Dirección (aparecerán en la cabecera de la factura).
+- **Marketing Digital**: Introduzca la URL de sus redes sociales o Linktree. El sistema generará automáticamente un **Código QR** al final de cada ticket para que sus clientes le sigan con un solo escaneo.
 
 ---
 
