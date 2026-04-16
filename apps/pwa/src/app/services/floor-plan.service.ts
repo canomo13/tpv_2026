@@ -13,6 +13,9 @@ export interface HandheldTable {
   number: number;
   status: 'free' | 'occupied' | 'dirty';
   zoneId: string;
+  x?: number;
+  y?: number;
+  shape?: string;
 }
 
 @Injectable({

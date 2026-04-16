@@ -15,11 +15,21 @@ export class OrdersService {
    * Obtener el ticket activo de una mesa o crear uno nuevo si no existe.
    */
   async getOrCreateActiveTicket(tableId: string, userId: string) {
+    // Validar integridad de la mesa
+    const table = await this.prisma.table.findUnique({ where: { id: tableId } });
+    if (!table) throw new NotFoundException('La mesa seleccionada no existe');
+
+    // Validación de usuario: Blindaje contra 'SYSTEM_USER' o IDs inválidos
+    let validUserId = userId;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+    
+    if (!isUuid) {
+      const fallbackAdmin = await this.prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      validUserId = fallbackAdmin?.id || userId;
+    }
+
     let ticket = await this.prisma.ticket.findFirst({
-      where: {
-        tableId,
-        status: 'OPEN'
-      },
+      where: { tableId, status: 'OPEN' },
       include: {
         items: {
           include: { product: true },
@@ -29,11 +39,10 @@ export class OrdersService {
     });
 
     if (!ticket) {
-      // Crear nuevo ticket y marcar mesa como ocupada
       ticket = await this.prisma.ticket.create({
         data: {
           tableId,
-          userId,
+          userId: validUserId,
           status: 'OPEN',
           total: 0,
           currentHash: 'pending'

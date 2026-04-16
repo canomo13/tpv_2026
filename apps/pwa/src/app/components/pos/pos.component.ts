@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService, Category, Product } from '../../services/inventory.service';
 import { OrdersService, Ticket } from '../../services/orders.service';
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-pos',
@@ -165,7 +166,7 @@ import { ToastService } from '../../services/toast.service';
 export class POSComponent implements OnInit {
   tableId: string = '';
   tableNumber: string = '0';
-  userId: string = 'SYSTEM_USER';
+  userId: string = '';
 
   categories: Category[] = [];
   products: Product[] = [];
@@ -178,12 +179,20 @@ export class POSComponent implements OnInit {
     private router: Router,
     private inventoryService: InventoryService,
     private ordersService: OrdersService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.tableId = this.route.snapshot.paramMap.get('tableId') || '';
+    this.userId = this.authService.currentUser()?.id || '';
     
+    if (!this.userId) {
+      this.toastService.error('Sesión no válida. Por favor, identifícate.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.loadData();
     this.refreshTicket();
   }

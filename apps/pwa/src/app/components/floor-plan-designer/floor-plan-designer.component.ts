@@ -117,16 +117,41 @@ export class FloorPlanDesignerComponent implements AfterViewInit, OnInit {
       selection: this.isEditMode
     });
 
-    this.loadInitialTables();
+    this.loadZones();
     this.setupEvents();
   }
 
-  private loadInitialTables() {
-    // Para demo, añadimos un par de mesas si el canvas está vacío
-    this.addTable('rect', 200, 200, 'T1');
-    this.addTable('circle', 500, 300, 'T2');
-    this.addTable('rect', 800, 200, 'T3');
-    this.freeTables = 3;
+  private loadZones() {
+    this.floorPlanService.getZones().subscribe(zones => {
+      if (zones.length > 0) {
+        this.loadTables(zones[0].id);
+      }
+    });
+  }
+
+  private loadTables(zoneId: string) {
+    this.floorPlanService.getZones().subscribe(zones => {
+      const zone = zones.find(z => z.id === zoneId);
+      if (zone && zone.tables) {
+        this.canvas.clear();
+        this.freeTables = 0;
+        this.occupiedTables = 0;
+
+        zone.tables.forEach(table => {
+          this.addTable(
+            (table.shape as 'rect' | 'circle') || 'rect', 
+            table.x || 100, 
+            table.y || 100, 
+            `M-${table.number}`,
+            table.id,
+            table.status
+          );
+          
+          if (table.status === 'free') this.freeTables++;
+          else this.occupiedTables++;
+        });
+      }
+    });
   }
 
   private setupEvents() {
@@ -145,10 +170,11 @@ export class FloorPlanDesignerComponent implements AfterViewInit, OnInit {
     }
   }
 
-  addTable(shape: 'rect' | 'circle', left?: number, top?: number, id?: string) {
+  addTable(shape: 'rect' | 'circle', left?: number, top?: number, label?: string, id?: string, status: string = 'free') {
     const tableId = id || `M-${Math.floor(Math.random() * 1000)}`;
+    const tableLabel = label || tableId;
     const tableColor = '#ffffff';
-    const borderColor = '#6366f1';
+    const borderColor = status === 'free' ? '#10b981' : '#f43f5e'; // Green vs Rose
 
     let table: fabric.Object;
     if (shape === 'rect') {
@@ -164,7 +190,7 @@ export class FloorPlanDesignerComponent implements AfterViewInit, OnInit {
       });
     }
 
-    const text = new fabric.Text(tableId, {
+    const text = new fabric.Text(tableLabel, {
       fontSize: 18, fontFamily: 'Outfit', fontWeight: 'bold', fill: '#475569',
       originX: 'center', originY: 'center', left: 60, top: 60
     });
