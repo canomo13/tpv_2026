@@ -13,7 +13,7 @@ export interface Shift {
   providedIn: 'root'
 })
 export class ShiftService {
-  private apiUrl = 'http://localhost:3000/shifts';
+  private apiUrl = 'http://localhost:3000/api/shifts';
   
   // Estado reactivo del turno actual
   currentShift = signal<Shift | null>(null);

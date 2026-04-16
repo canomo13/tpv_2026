@@ -52,7 +52,7 @@ export interface RecipeItem {
   providedIn: 'root'
 })
 export class InventoryService {
-  private apiUrl = 'http://localhost:3000/inventory';
+  private apiUrl = 'http://localhost:3000/api/inventory';
 
   constructor(private http: HttpClient) {}
 

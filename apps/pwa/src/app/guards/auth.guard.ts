@@ -9,20 +9,22 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
-    // Si no está en la página de fichaje y no tiene turno activo, obligamos a fichar
-    // Excepto si es una ruta que no requiere turno (ej: settings tal vez, pero por ahora estricto)
-    if (state.url !== '/shift' && !shiftService.hasActiveShift()) {
+    const userRole = authService.currentUser()?.role;
+    const isShiftPage = state.url === '/shift';
+    
+    // Si no tiene turno activo y NO es admin, obligamos a fichar (excepto en la propia pág. de fichaje)
+    // Los Admins pueden navegar por el diseñador e inventario sin haber fichado turno de camarero.
+    if (!isShiftPage && !shiftService.hasActiveShift() && userRole !== 'ADMIN') {
       router.navigate(['/shift']);
       return false;
     }
 
     const expectedRole = route.data['role'];
     if (expectedRole && !authService.hasRole(expectedRole)) {
-      // Redirigir según su propio rol si intenta entrar donde no debe
-      const userRole = authService.currentUser()?.role;
+      // Redirigir según su propio rol
       if (userRole === 'ADMIN') router.navigate(['/floor-plan']);
       else if (userRole === 'KITCHEN') router.navigate(['/kitchen']);
-      else router.navigate(['/handheld']);
+      else router.navigate(['/shift']); // Waiter sin turno va a /shift
       return false;
     }
     return true;

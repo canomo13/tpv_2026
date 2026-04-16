@@ -18,7 +18,7 @@ export interface BusinessSettings {
   providedIn: 'root'
 })
 export class SettingsService {
-  private apiUrl = 'http://localhost:3000/settings';
+  private apiUrl = 'http://localhost:3000/api/settings';
 
   constructor(private http: HttpClient) {}
 

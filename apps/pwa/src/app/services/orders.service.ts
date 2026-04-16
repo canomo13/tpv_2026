@@ -29,7 +29,7 @@ export interface Ticket {
   providedIn: 'root'
 })
 export class OrdersService {
-  private apiUrl = 'http://localhost:3000/orders'; // Ajustar si hay prefijo /api
+  private apiUrl = 'http://localhost:3000/api/orders'; // Ajustar si hay prefijo /api
 
   constructor(private http: HttpClient) {}
 

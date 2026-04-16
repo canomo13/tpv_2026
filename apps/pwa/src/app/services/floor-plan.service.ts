@@ -19,7 +19,7 @@ export interface HandheldTable {
   providedIn: 'root'
 })
 export class FloorPlanService {
-  private apiUrl = 'http://localhost:3000/floor-plan';
+  private apiUrl = 'http://localhost:3000/api/floor-plan';
   
   private tablesSubject = new BehaviorSubject<HandheldTable[]>([]);
   tables$ = this.tablesSubject.asObservable();

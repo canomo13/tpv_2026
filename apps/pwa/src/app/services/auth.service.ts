@@ -14,7 +14,7 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/auth';
+  private apiUrl = 'http://localhost:3000/api/auth';
   
   currentUser = signal<User | null>(null);
 

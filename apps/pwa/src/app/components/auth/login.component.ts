@@ -147,9 +147,12 @@ export class LoginComponent {
   }
 
   private navigateByRole(role: string) {
-    // Tras login, cargamos el turno y vamos a la pantalla de estado de jornada
     this.shiftService.loadCurrentShift().subscribe(() => {
-      this.router.navigate(['/shift']);
+      if (role === 'ADMIN') {
+        this.router.navigate(['/floor-plan']);
+      } else {
+        this.router.navigate(['/shift']);
+      }
     });
   }
 }
