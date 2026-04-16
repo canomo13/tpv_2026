@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (authService.isLoggedIn()) {
     // Si no está en la página de fichaje y no tiene turno activo, obligamos a fichar
-    // (A menos que sea KITCHEN, que quizás tenga otra operativa, pero por ahora todos)
+    // Excepto si es una ruta que no requiere turno (ej: settings tal vez, pero por ahora estricto)
     if (state.url !== '/shift' && !shiftService.hasActiveShift()) {
       router.navigate(['/shift']);
       return false;

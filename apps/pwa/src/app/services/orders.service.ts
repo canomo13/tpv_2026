@@ -21,6 +21,8 @@ export interface Ticket {
   status: string;
   items: TicketItem[];
   table?: any;
+  user?: any;
+  createdAt: string;
 }
 
 @Injectable({

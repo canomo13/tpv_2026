@@ -21,6 +21,6 @@ export class PosWrapperComponent {
   // Detector de tamaño de pantalla nativo (sin dependencias externas)
   isMobile$ = fromEvent(window, 'resize').pipe(
     startWith(null), // Disparar valor inicial
-    map(() => window.innerWidth < 1024)
+    map(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false)
   );
 }
