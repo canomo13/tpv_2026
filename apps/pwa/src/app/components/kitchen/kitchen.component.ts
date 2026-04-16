@@ -161,9 +161,11 @@ export class KitchenComponent implements OnInit, OnDestroy {
   loadOrders() {
     this.ordersService.getKitchenOrders().subscribe(tickets => {
       // Ordenar por antigüedad (más viejos primero)
-      this.tickets = tickets.sort((a: Ticket, b: Ticket) => 
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
+      this.tickets = tickets.sort((a: Ticket, b: Ticket) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateA - dateB;
+      });
     });
   }
 

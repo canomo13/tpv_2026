@@ -3,15 +3,16 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService, Category, Product } from '../../services/inventory.service';
 import { OrdersService, Ticket } from '../../services/orders.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-pos',
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="h-full flex gap-8 animate-slide-up overflow-hidden">
+    <div class="h-full flex gap-6 animate-slide-up overflow-hidden">
       <!-- Panel de Comanda (Izquierda) -->
-      <aside class="w-[420px] flex flex-col gap-6 shrink-0 h-full">
+      <aside class="w-[450px] flex flex-col gap-6 shrink-0 h-full">
         <div class="glass-panel flex-1 rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl border-white bg-white/60">
           <!-- Cabecera Comanda -->
           <div class="p-8 border-b border-slate-100 flex justify-between items-start">
@@ -176,7 +177,8 @@ export class POSComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private inventoryService: InventoryService,
-    private ordersService: OrdersService
+    private ordersService: OrdersService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -223,6 +225,7 @@ export class POSComponent implements OnInit {
     if (!this.currentTicket) return;
     this.ordersService.addItem(this.currentTicket.id, product.id, 1, notes).subscribe(ticket => {
       this.currentTicket = ticket;
+      this.toastService.success(`${product.name} añadido`);
     });
   }
 
@@ -237,7 +240,7 @@ export class POSComponent implements OnInit {
     if (!this.currentTicket) return;
     if (confirm('¿Deseas cerrar la mesa y proceder al cobro?')) {
       this.ordersService.payTicket(this.currentTicket.id).subscribe(() => {
-        alert('Pago procesado correctamente');
+        this.toastService.success('Mesa cobrada y cerrada correctamente');
         this.router.navigate(['/floor-plan']);
       });
     }

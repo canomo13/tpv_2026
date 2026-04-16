@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ShiftService } from '../../services/shift.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -87,7 +88,6 @@ import { Router } from '@angular/router';
           </button>
         </div>
 
-        <p *ngIf="error()" class="mt-6 text-rose-500 font-bold text-sm animate-bounce">{{ error() }}</p>
       </div>
 
       <div class="fixed bottom-8 text-slate-300 text-[10px] font-black uppercase tracking-[0.3em]">
@@ -112,7 +112,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService, 
     private shiftService: ShiftService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   addDigit(digit: string) {
@@ -133,7 +134,7 @@ export class LoginComponent {
     this.authService.loginPin(this.pin()).subscribe({
       next: (res) => this.navigateByRole(res.user.role),
       error: () => {
-        this.error.set('PIN incorrecto');
+        this.toastService.error('PIN incorrecto. Por favor, inténtelo de nuevo.');
         this.pin.set('');
       }
     });
@@ -142,7 +143,7 @@ export class LoginComponent {
   submitEmail() {
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => this.navigateByRole(res.user.role),
-      error: () => this.error.set('Credenciales inválidas')
+      error: () => this.toastService.error('Email o contraseña incorrectas.')
     });
   }
 

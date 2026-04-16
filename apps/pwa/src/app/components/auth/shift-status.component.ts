@@ -124,7 +124,14 @@ export class ShiftStatusComponent implements OnInit {
   }
 
   goHome() {
-    this.router.navigate(['/pos']);
+    const role = this.authService.currentUser()?.role;
+    if (role === 'KITCHEN') {
+      this.router.navigate(['/kitchen']);
+    } else if (role === 'WAITER' || role === 'ADMIN') {
+      this.router.navigate(['/handheld']);
+    } else {
+      this.router.navigate(['/shift']);
+    }
   }
 
   logout() {

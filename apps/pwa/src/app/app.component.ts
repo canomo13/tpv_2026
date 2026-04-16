@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { ShiftService } from './services/shift.service';
 
+import { ToastComponent } from './components/shared/toast.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, ToastComponent],
   template: `
     <div class="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       <!-- Header Pastel Premium -->
@@ -82,8 +84,9 @@ import { ShiftService } from './services/shift.service';
         </div>
       </header>
 
-      <!-- Main Content Area -->
-      <main class="flex-1 p-10 max-w-7xl mx-auto w-full animate-slide-up">
+      <!-- Main Content Area (Ajuste dinámico según vista) -->
+      <main class="flex-1 animate-slide-up w-full"
+            [ngClass]="isPOSView() ? 'p-6' : 'p-10 max-w-7xl mx-auto'">
         <router-outlet></router-outlet>
       </main>
 
@@ -103,6 +106,7 @@ import { ShiftService } from './services/shift.service';
           </span>
         </div>
       </footer>
+      <app-toast></app-toast>
     </div>
   `,
   styles: [`
@@ -125,4 +129,9 @@ export class AppComponent {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  isPOSView = computed(() => {
+    const url = this.router.url;
+    return url.includes('/pos') || url.includes('/handheld');
+  });
 }

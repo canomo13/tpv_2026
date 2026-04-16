@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventoryService, Category, Product, Ingredient, Warehouse, Stock, RecipeItem } from '../../services/inventory.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-inventory',
@@ -369,7 +370,10 @@ export class InventoryComponent implements OnInit {
   isEditing = false;
   editingProductId: string | null = null;
 
-  constructor(private inventoryService: InventoryService) {}
+  constructor(
+    private inventoryService: InventoryService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit() {
     this.loadAll();
@@ -404,6 +408,7 @@ export class InventoryComponent implements OnInit {
       : this.inventoryService.createProduct(this.newProduct);
 
     action.subscribe(() => {
+      this.toastService.success(this.isEditing ? 'Producto actualizado' : 'Producto creado con éxito');
       this.closeProductModal();
       this.selectCategory(this.selectedCategoryId);
     });
@@ -417,8 +422,11 @@ export class InventoryComponent implements OnInit {
   }
 
   deleteProduct(id: string) {
-    if (confirm('¿Eliminar producto de la carta?')) {
-      this.inventoryService.deleteProduct(id).subscribe(() => this.selectCategory(this.selectedCategoryId));
+    if (confirm(`¿Eliminar ${id}? (Esta acción es irreversible)`)) {
+      this.inventoryService.deleteProduct(id).subscribe(() => {
+        this.toastService.info('Producto eliminado');
+        this.selectCategory(this.selectedCategoryId);
+      });
     }
   }
 
@@ -431,6 +439,7 @@ export class InventoryComponent implements OnInit {
   createCategory() {
     if (this.newCategoryName) {
       this.inventoryService.createCategory(this.newCategoryName).subscribe(() => {
+        this.toastService.success('Categoría añadida');
         this.showCategoryModal = false;
         this.newCategoryName = '';
         this.loadAll();
@@ -495,7 +504,7 @@ export class InventoryComponent implements OnInit {
     if (!this.editingProductForRecipe) return;
     this.inventoryService.updateRecipe(this.editingProductForRecipe.id, this.recipeItems).subscribe(() => {
       this.showRecipeModal = false;
-      alert('Ficha técnica actualizada correctamente');
+      this.toastService.success('Ficha técnica (escandallo) actualizada');
     });
   }
 

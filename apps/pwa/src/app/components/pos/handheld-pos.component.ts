@@ -187,6 +187,14 @@ import { Router } from '@angular/router';
          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
          <span class="text-[10px] font-black uppercase tracking-widest">Listo para comandar</span>
       </div>
+
+      <!-- Add to Order Feedback Toast -->
+      <div *ngIf="showToast()" class="fixed top-24 left-1/2 -translate-x-1/2 z-[200] animate-with-fade-in pointer-events-none">
+         <div class="bg-emerald-500 text-white px-8 py-4 rounded-full shadow-[0_20px_50px_rgba(16,185,129,0.4)] flex items-center gap-3 border-2 border-white/20 backdrop-blur-md">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+            <span class="font-black text-xs uppercase tracking-widest">Añadido</span>
+         </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -263,6 +271,8 @@ export class HandheldPosComponent implements OnInit {
     return this.products.filter(p => p.categoryId === this.selectedCategoryId);
   }
 
+  showToast = signal(false);
+
   addToOrder(event: Event, product: Product) {
     // Animación simple de escala al pulsar
     const btn = event.currentTarget as HTMLElement;
@@ -280,6 +290,10 @@ export class HandheldPosComponent implements OnInit {
         quantity: 1
       });
     }
+
+    // Feedback visual
+    this.showToast.set(true);
+    setTimeout(() => this.showToast.set(false), 800);
   }
 
   removeItem(index: number) {

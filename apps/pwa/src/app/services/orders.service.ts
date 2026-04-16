@@ -22,7 +22,7 @@ export interface Ticket {
   items: TicketItem[];
   table?: any;
   user?: any;
-  createdAt: string;
+  createdAt?: string;
 }
 
 @Injectable({

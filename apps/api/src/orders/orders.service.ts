@@ -85,7 +85,7 @@ export class OrdersService {
           price: product.price,
           notes: notes || null,
           status: 'PENDING'
-        },
+        } as any,
         include: { product: true, ticket: { include: { table: true } } }
       });
     }
@@ -122,16 +122,16 @@ export class OrdersService {
         status: 'OPEN',
         items: {
           some: {
-            status: { in: ['PENDING', 'PREPARING', 'READY'] } as any
-          }
+            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+          } as any
         }
       },
       include: {
         table: true,
         items: {
           where: {
-            status: { in: ['PENDING', 'PREPARING', 'READY'] } as any
-          },
+            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+          } as any,
           include: { product: true }
         }
       },
