@@ -6,10 +6,10 @@ export class SettingsService {
   constructor(private prisma: PrismaService) {}
 
   async getSettings() {
-    let settings = await this.prisma.businessSettings.findFirst();
+    let settings = await (this.prisma as any).businessSettings.findFirst();
     if (!settings) {
       // Crear uno por defecto si no existe
-      settings = await this.prisma.businessSettings.create({
+      settings = await (this.prisma as any).businessSettings.create({
         data: {
           name: 'Pastel Premium',
           footerMessage: 'Gracias por su visita'
@@ -21,7 +21,7 @@ export class SettingsService {
 
   async updateSettings(data: any) {
     const settings = await this.getSettings();
-    return this.prisma.businessSettings.update({
+    return (this.prisma as any).businessSettings.update({
       where: { id: settings.id },
       data
     });

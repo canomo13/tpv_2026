@@ -23,7 +23,7 @@ export class OrdersService {
       include: {
         items: {
           include: { product: true },
-          orderBy: { status: 'asc' }
+          orderBy: { status: 'asc' } as any
         }
       }
     });
@@ -66,7 +66,7 @@ export class OrdersService {
 
     // Buscamos si ya existe el mismo producto CON la misma nota (si hay notas distintas, son items distintos)
     const existingItem = await this.prisma.orderItem.findFirst({
-      where: { ticketId, productId, notes: notes || null, status: 'PENDING' }
+      where: { ticketId, productId, notes: notes || null, status: 'PENDING' } as any
     });
 
     let orderItem;
@@ -122,7 +122,7 @@ export class OrdersService {
         status: 'OPEN',
         items: {
           some: {
-            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+            status: { in: ['PENDING', 'PREPARING', 'READY'] } as any
           }
         }
       },
@@ -130,7 +130,7 @@ export class OrdersService {
         table: true,
         items: {
           where: {
-            status: { in: ['PENDING', 'PREPARING', 'READY'] }
+            status: { in: ['PENDING', 'PREPARING', 'READY'] } as any
           },
           include: { product: true }
         }
@@ -145,7 +145,7 @@ export class OrdersService {
   async updateItemStatus(itemId: string, status: string) {
     const item = await this.prisma.orderItem.update({
       where: { id: itemId },
-      data: { status },
+      data: { status } as any,
       include: { product: true, ticket: { include: { table: true } } }
     });
 
@@ -174,7 +174,7 @@ export class OrdersService {
       data: { 
         status: 'PAID',
         paidAt: new Date()
-      },
+      } as any,
       include: { table: true }
     });
 

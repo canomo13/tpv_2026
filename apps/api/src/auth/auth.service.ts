@@ -20,7 +20,7 @@ export class AuthService {
   }
 
   async validatePin(pin: string): Promise<any> {
-    const user = await this.prisma.user.findFirst({ where: { pin } });
+    const user = await this.prisma.user.findFirst({ where: { pin } as any });
     if (user) {
       const { password, ...result } = user;
       return result;
